@@ -10,16 +10,16 @@ func Middleware[T any](next func(ctx context.Context, arg T) error) func(ctx con
 	return func(ctx context.Context, arg T) error {
 		v, ok := any(arg).(Validator)
 		if !ok {
-			return fmt.Errorf("not a validator")
+			return Errorf("not a validator: %T", arg)
 		}
 
 		if isNil(reflect.ValueOf(v)) {
-			return fmt.Errorf("arg is nil")
+			return Errorf("nil: %T", arg)
 		}
 
 		err := v.Validate()
 		if err != nil {
-			return err
+			return Error{err: fmt.Errorf("invalid: %w", err)}
 		}
 
 		return next(ctx, arg)

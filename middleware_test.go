@@ -9,6 +9,14 @@ import (
 	"github.com/kyuff/validate/internal/assert"
 )
 
+type TestArg struct {
+	ValidateFunc func() error
+}
+
+func (arg TestArg) Validate() error {
+	return arg.ValidateFunc()
+}
+
 func TestMiddleware2(t *testing.T) {
 	t.Run("fail on not implementing Validator", func(t *testing.T) {
 		// arrange
@@ -108,5 +116,26 @@ func TestMiddleware2(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Truef(t, called, "called")
 		assert.Equal(t, 1, len(arg.ValidateCalls()))
+	})
+
+	t.Run("call next on valid value Validator", func(t *testing.T) {
+		// arrange
+		var (
+			called = false
+			arg    = TestArg{ValidateFunc: func() error {
+				return nil
+			}}
+			sut = validate.Middleware(func(ctx context.Context, arg TestArg) error {
+				called = true
+				return nil
+			})
+		)
+
+		// act
+		err := sut(t.Context(), arg)
+
+		// assert
+		assert.NoError(t, err)
+		assert.Truef(t, called, "called")
 	})
 }
