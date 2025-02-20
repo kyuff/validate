@@ -1,7 +1,9 @@
 package assert_test
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/kyuff/validate/internal/assert"
@@ -159,6 +161,27 @@ func TestAsserts(t *testing.T) {
 			name: "Match failed compile",
 			assert: func(t *testing.T) {
 				assert.Match(t, "(", "RE cannot compile")
+			},
+			failed: true,
+		},
+		{
+			name: "ErrorIs success",
+			assert: func(t *testing.T) {
+				assert.ErrorIs(t, context.Canceled, fmt.Errorf("error: %w", context.Canceled))
+			},
+			failed: false,
+		},
+		{
+			name: "ErrorIs failed nil",
+			assert: func(t *testing.T) {
+				assert.ErrorIs(t, context.Canceled, nil)
+			},
+			failed: true,
+		},
+		{
+			name: "ErrorIs failed wrong type",
+			assert: func(t *testing.T) {
+				assert.ErrorIs(t, context.Canceled, fmt.Errorf("error: %w", context.DeadlineExceeded))
 			},
 			failed: true,
 		},
