@@ -49,4 +49,43 @@ func TestError(t *testing.T) {
 		// assert
 		assert.Truef(t, got, "should support unwrap")
 	})
+
+	t.Run("is not a nil", func(t *testing.T) {
+		// arrange
+		var (
+			sut = validate.Error{}
+		)
+
+		// act
+		got := sut.Is(nil)
+
+		// assert
+		assert.Truef(t, !got, "is not a nil")
+	})
+
+	t.Run("is not a different type", func(t *testing.T) {
+		// arrange
+		var (
+			sut = validate.Error{}
+		)
+
+		// act
+		got := sut.Is(context.Canceled)
+
+		// assert
+		assert.Truef(t, !got, "is not a context.Conceled")
+	})
+
+	t.Run("is a validate.Error", func(t *testing.T) {
+		// arrange
+		var (
+			sut = validate.Error{}
+		)
+
+		// act
+		got := sut.Is(validate.Error{})
+
+		// assert
+		assert.Truef(t, got, "is a validate.Error")
+	})
 }
