@@ -94,7 +94,7 @@ func TestMiddleware2(t *testing.T) {
 		assert.Equal(t, 1, len(arg.ValidateCalls()))
 	})
 
-	t.Run("call next on valid Validator", func(t *testing.T) {
+	t.Run("call next on valid pointer Validator", func(t *testing.T) {
 		// arrange
 		var (
 			called = false
@@ -137,5 +137,50 @@ func TestMiddleware2(t *testing.T) {
 		// assert
 		assert.NoError(t, err)
 		assert.Truef(t, called, "called")
+	})
+
+	t.Run("upgrade error to validate.Error", func(t *testing.T) {
+		// arrange
+		var (
+			called = false
+			arg    = TestArg{ValidateFunc: func() error {
+				return errors.New("validation error")
+			}}
+			sut = validate.Middleware(func(ctx context.Context, arg TestArg) error {
+				called = true
+				return nil
+			})
+		)
+
+		// act
+		err := sut(t.Context(), arg)
+
+		// assert
+		assert.Error(t, err)
+		assert.Truef(t, !called, "called")
+		assert.ErrorIs(t, validate.Error{}, err)
+	})
+
+	t.Run("no upgrade validate.Error", func(t *testing.T) {
+		// arrange
+		var (
+			called   = false
+			expected = validate.Errorf("already validation error")
+			arg      = TestArg{ValidateFunc: func() error {
+				return expected
+			}}
+			sut = validate.Middleware(func(ctx context.Context, arg TestArg) error {
+				called = true
+				return nil
+			})
+		)
+
+		// act
+		err := sut(t.Context(), arg)
+
+		// assert
+		assert.Error(t, err)
+		assert.Truef(t, !called, "called")
+		assert.Equal(t, expected, err)
 	})
 }

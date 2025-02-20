@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"testing"
@@ -116,4 +117,21 @@ Must match %q
 	}
 
 	return true
+}
+
+func ErrorIs(t *testing.T, want error, got error) bool {
+	t.Helper()
+	if errors.Is(got, want) {
+		return true
+	}
+
+	t.Logf("Expected error: %T", want)
+	t.Logf("\tGot error chain:")
+	for got != nil {
+		t.Logf("\t- [%T] %s", got, got.Error())
+		got = errors.Unwrap(got)
+	}
+
+	t.Fail()
+	return false
 }

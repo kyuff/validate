@@ -1,6 +1,9 @@
 package validate
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Error struct {
 	err error
@@ -22,4 +25,14 @@ func (err Error) Error() string {
 
 func (err Error) Unwrap() error {
 	return err.err
+}
+
+func (err Error) Is(target error) bool {
+	if target == nil {
+		return false
+	}
+
+	var e Error
+	ok := errors.As(target, &e)
+	return ok
 }

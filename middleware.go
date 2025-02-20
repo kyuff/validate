@@ -2,6 +2,7 @@ package validate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -18,6 +19,10 @@ func Middleware[T any](next func(ctx context.Context, arg T) error) func(ctx con
 		}
 
 		err := v.Validate()
+		var validationError Error
+		if errors.As(err, &validationError) {
+			return err
+		}
 		if err != nil {
 			return Error{err: fmt.Errorf("invalid: %w", err)}
 		}
