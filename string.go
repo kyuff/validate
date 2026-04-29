@@ -1,6 +1,9 @@
 package validate
 
-import "regexp"
+import (
+	"regexp"
+	"slices"
+)
 
 // StringNotEmptyf returns a Validator that fails if value is an empty string.
 // The error message is formatted using template and args.
@@ -70,10 +73,8 @@ func StringMatches[T ~string](value T, pattern *regexp.Regexp) ValidatorFunc {
 // The error message is formatted using template and args.
 func StringOneOff[T ~string](value T, options []T, template string, args ...any) ValidatorFunc {
 	return func() error {
-		for _, o := range options {
-			if value == o {
-				return nil
-			}
+		if slices.Contains(options, value) {
+			return nil
 		}
 		return Errorf(template, args...)
 	}
