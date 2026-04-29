@@ -112,16 +112,20 @@ err := validate.SliceContainsf(roles, "admin", "user must have the admin role")
 `FieldsStrict` validates a struct by calling `Validate()` on every field. All fields must implement `Validator`; the function fails immediately if one does not.
 
 ```go
-type Address struct {
-    Street validate.ValidatorFunc
-    City   validate.ValidatorFunc
+type Street string
+type City string
+
+func (s Street) Validate() error {
+    return validate.StringNotEmpty(s)()
 }
 
-func NewAddress(street, city string) Address {
-    return Address{
-        Street: validate.StringNotEmpty(street),
-        City:   validate.StringNotEmpty(city),
-    }
+func (c City) Validate() error {
+    return validate.StringNotEmpty(c)()
+}
+
+type Address struct {
+    Street Street
+    City   City
 }
 
 func (a Address) Validate() error {
