@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var validatorType = reflect.TypeOf((*Validator)(nil)).Elem()
+var validatorType = reflect.TypeFor[Validator]()
 
 type fieldsStrictEntry struct {
 	err     error
