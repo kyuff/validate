@@ -8,6 +8,7 @@ on:
     types: [opened, reopened, synchronize]
 jobs:
   update_release_draft:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       # write permission is required to create a github release
@@ -16,7 +17,7 @@ jobs:
       # otherwise, read permission is required at least
       pull-requests: write
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@v7
         with:
           config-name: release-drafter.yml
         env:
